@@ -1,0 +1,37 @@
+#include"ultrasonic.h"
+#include"icu.h"
+#include"util/delay.h"
+static uint8 g_edgeCount = 0;
+static uint8 time_pulse = 0;
+void Ultrasonic_init(void) {
+	ICU_Config Icu_Config = { F_CPU_CLOCK_8, RISING_EDGE };
+	GPIO_setupPinDirection(ULTRASONIC_TRIGGER_PORT_ID,
+	ULTRASONIC_TRIGGER_PIN_ID, PIN_OUTPUT);
+	GPIO_writePin(ULTRASONIC_TRIGGER_PORT_ID, ULTRASONIC_TRIGGER_PIN_ID, LOGIC_LOW);
+	//Setup the ICU call back function.
+	Icu_setCallBack(Ultrasonic_edgeProcessing);
+	Icu_init(&Icu_Config);
+}
+void Ultrasonic_Trigger(void) {
+GPIO_writePin(ULTRASONIC_TRIGGER_PORT_ID, ULTRASONIC_TRIGGER_PIN_ID, LOGIC_HIGH);
+_delay_us(10);
+GPIO_writePin(ULTRASONIC_TRIGGER_PORT_ID, ULTRASONIC_TRIGGER_PIN_ID, LOGIC_LOW);
+}
+uint16 Ultrasonic_readDistance(void) {
+	// use the function Ultrasonic_Trigger to send a trigger
+	Ultrasonic_Trigger();
+return
+}
+void Ultrasonic_edgeProcessing(void) {
+	g_edgeCount++;
+	if (g_edgeCount == 1) {
+		Icu_clearTimerValue();
+		/* Detect falling edge */
+		Icu_setEdgeDetectionType(FALLING_EDGE);
+	} else if (g_edgeCount == 2) {
+		time_pulse = Icu_getInputCaptureValue();
+		Icu_clearTimerValue();
+		g_edgeCount=0;
+		Icu_DeInit(); /* Disable ICU Driver */
+	}
+}
