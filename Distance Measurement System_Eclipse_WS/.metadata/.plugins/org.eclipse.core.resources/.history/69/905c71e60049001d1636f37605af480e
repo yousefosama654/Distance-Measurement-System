@@ -1,0 +1,21 @@
+#include "lcd.h"
+#include"avr/io.h"
+#include"icu.h"
+#include"ultrasonic.h"
+void APP_edgeProcessing() {
+}
+int main() {
+	uint8 dist;
+	SREG |= (1 << 7);
+	Ultrasonic_init();
+	LCD_init();
+	LCD_displayString("Distance= ");
+	while (1) {
+		if (dist >= 100) {
+
+		} else {
+			// some code
+			LCD_displayCharacter(' ');
+		}
+	}
+}
